@@ -15,6 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Repositories\Abstraction\" />
+    <Folder Include="Repositories\Implementation\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
