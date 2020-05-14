@@ -1,4 +1,7 @@
-﻿@using KanbanBoard.Data.Entities
+﻿@using KanbanBoard.Services
+@inject MainService service
+
+@using KanbanBoard.Data.Entities
 
     <div class="jobs-board">
         <CascadingValue Value="this">
@@ -36,6 +39,8 @@
             Name = newColumn,
             Place = this.Columns.Count
         };
+
+        column = await service.AddColumn(column);
 
         this.Columns.Add(column);
         base.StateHasChanged();

@@ -1,11 +1,13 @@
 ﻿@page "/board"
 
+@using KanbanBoard.Services
+@inject MainService service
 @using KanbanBoard.Data.Entities
 
 @attribute [Authorize]
 
 <h3>The Board</h3>
-<JobsBoardComponent Columns="Columns" Jobs="Jobs" OnStatusUpdated="HandleStatusUpdated"/>
+<JobsBoardComponent Columns="Columns" Jobs="Jobs" OnStatusUpdated="HandleStatusUpdated" />
 
 <hr />
 <p>Last updated job was: <strong>@lastUpdatedJob</strong></p>
@@ -21,16 +23,9 @@
     List<JobItem> Jobs = new List<JobItem>();
     string lastUpdatedJob = "";
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        Columns.Add(new JobColumn { Id = 0, Name = "ToDo", Place = 0 });
-        Columns.Add(new JobColumn { Id = 1, Name = "Done", Place = 1 });
-
-        Jobs.Add(new JobItem { Id = 1, Description = "Mow the lawn", JobColumn = Columns[0] });
-        Jobs.Add(new JobItem { Id = 2, Description = "Go to the gym", JobColumn = Columns[0] });
-        Jobs.Add(new JobItem { Id = 3, Description = "Call Ollie", JobColumn = Columns[0] });
-        Jobs.Add(new JobItem { Id = 4, Description = "Fix bike tyre", JobColumn = Columns[0] });
-        Jobs.Add(new JobItem { Id = 5, Description = "Finish blog post", JobColumn = Columns[0] });
+        Columns = await service.GetColumns();
 
     }
 

@@ -16,6 +16,9 @@ using Microsoft.Extensions.Hosting;
 using KanbanBoard.Areas.Identity;
 using KanbanBoard.Data;
 using KanbanBoard.Data.Entities;
+using KanbanBoard.Repositories.Abstraction;
+using KanbanBoard.Repositories.Implementation;
+using KanbanBoard.Services;
 
 namespace KanbanBoard
 {
@@ -42,7 +45,13 @@ namespace KanbanBoard
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<IdentityUser, ApplicationUser>();
+
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+            
+            services.AddScoped<DbContext, ApplicationDbContext>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<MainService>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

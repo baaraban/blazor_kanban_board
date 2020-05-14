@@ -7,13 +7,13 @@ namespace KanbanBoard.Repositories.Abstraction
 {
     public interface IRepository<TEntity> where TEntity : class
     {
-        IEnumerable<TEntity> GetAll();
+        Task<IEnumerable<TEntity>> GetAll();
 
-        IQueryable<TEntity> AsQueryable();
+       IQueryable<TEntity> AsQueryable();
 
-        TEntity Get(object id);
-        TEntity Add(TEntity entity);
-        TEntity Update(TEntity entity);
-        void Delete(TEntity entity);
+        Task<TEntity> Get(object id);
+        Task<TEntity> Add(TEntity entity);
+        Task<TEntity> Update(TEntity entity);
+        Task Delete(TEntity entity);
     }
 }

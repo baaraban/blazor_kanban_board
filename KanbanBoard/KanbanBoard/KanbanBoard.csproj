@@ -14,10 +14,4 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Repositories\Abstraction\" />
-    <Folder Include="Repositories\Implementation\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
 </Project>

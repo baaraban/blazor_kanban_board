@@ -1,7 +1,7 @@
 ﻿@using KanbanBoard.Data.Entities
 
 <div class="job-status">
-    <h3>@JobColumn.Name (@Jobs.Count())</h3>
+    <h3>@JobColumn.Name (@Jobs.Count()) - @JobColumn.Id</h3>
     <ul class="dropzone @dropClass"
         ondragover="event.preventDefault();"
         ondragstart="event.dataTransfer.setData('', event.target.id);"

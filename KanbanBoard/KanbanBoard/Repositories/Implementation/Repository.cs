@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace KanbanBoard.Repositories.Implementation
 {
@@ -16,30 +17,30 @@ namespace KanbanBoard.Repositories.Implementation
             this.table = this.context.Set<TEntity>();
         }
 
-        public TEntity Add(TEntity entity)
+        public async Task<TEntity> Add(TEntity entity)
         {
-            this.table.Add(entity);
-            this.context.SaveChanges();
+            await this.table.AddAsync(entity);
+            await this.context.SaveChangesAsync();
             return entity;
         }
 
-        public IQueryable<TEntity> AsQueryable() => this.table.AsQueryable<TEntity>();
+        public IQueryable<TEntity> AsQueryable() =>  this.table.AsQueryable<TEntity>();
 
-        public void Delete(TEntity entity)
+        public async Task Delete(TEntity entity)
         {
             this.table.Remove(entity);
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
         }
 
-        public TEntity Get(object id) => this.table.Find(id);
+        public async Task<TEntity> Get(object id) => await this.table.FindAsync(id);
 
-        public IEnumerable<TEntity> GetAll() => this.table.ToList();
+        public async Task<IEnumerable<TEntity>> GetAll() => await this.table.ToListAsync();
 
-        public TEntity Update(TEntity entity)
+        public async Task<TEntity> Update(TEntity entity)
         {
             this.table.Attach(entity);
             this.context.Entry(entity).State = EntityState.Modified;
-            this.context.SaveChanges();
+            await this.context.SaveChangesAsync();
             return entity;
         }
     }
