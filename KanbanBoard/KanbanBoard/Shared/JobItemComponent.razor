@@ -1,8 +1,10 @@
 ﻿@using KanbanBoard.Data.Entities
 
-<li class="draggable" draggable="true" title="@Item.Title" @ondragstart="@(() => HandleDragStart(Item))">
-    <p class="description">@Item.Description</p>
-</li>
+    <li class="draggable" draggable="true" title="@Item.Title" @ondragstart="@(() => HandleDragStart(Item))">
+        <p class="title">@Item.Title</p>
+        <hr />
+        <p class="description">@Item.Description</p>
+    </li>
 
 @code {
     [CascadingParameter] JobsBoardComponent Container { get; set; }

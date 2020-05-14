@@ -7,16 +7,8 @@
 @attribute [Authorize]
 
 <h3>The Board</h3>
-<JobsBoardComponent Columns="Columns" Jobs="Jobs" OnStatusUpdated="HandleStatusUpdated" />
-
+<JobsBoardComponent Columns="Columns" Jobs="Jobs" />
 <hr />
-<p>Last updated job was: <strong>@lastUpdatedJob</strong></p>
-<hr />
-
-@foreach (var task in Jobs)
-{
-    <p>@task.Description - <strong>@task.JobColumn.Id</strong></p>
-}
 
 @code {
     List<JobColumn> Columns = new List<JobColumn>();
@@ -26,11 +18,6 @@
     protected async override Task OnInitializedAsync()
     {
         Columns = await service.GetColumns();
-
-    }
-
-    void HandleStatusUpdated(JobItem updatedJob)
-    {
-        lastUpdatedJob = updatedJob.Description;
+        Jobs = Columns.SelectMany(x => x.JobItems ?? new List<JobItem>()).ToList();
     }
 }

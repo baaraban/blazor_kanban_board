@@ -1,0 +1,26 @@
+﻿
+    <li class="draggable" draggable="true">
+        <input class="title" type="text" @bind="Title" />
+        <input class="description" type="text" @bind="Description" />
+        @if (!string.IsNullOrEmpty(Title))
+        {
+            <button @onclick="Add">Add Item</button>
+        }
+    </li>
+
+@code {
+    [CascadingParameter] JobsBoardComponent Container { get; set; }
+    [Parameter] public JobsColumnComponent ColumnsComponent { get; set; }
+
+
+    private async Task Add()
+    {
+        await ColumnsComponent.AddNewItemJobAsync(Title, Description);
+        Title = string.Empty;
+        Description = string.Empty;
+    }
+
+    string Title;
+    string Description;
+
+}

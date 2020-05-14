@@ -3,15 +3,15 @@
 
 @using KanbanBoard.Data.Entities
 
-    <div class="jobs-board">
-        <CascadingValue Value="this">
-            @foreach (var col in Columns)
-            {
-                <JobsColumnComponent JobColumn="@col" />
-            }
-            <AddColumnComponent />
-        </CascadingValue>
-    </div>
+<div class="jobs-board">
+    <CascadingValue Value="this">
+        @foreach (var col in Columns)
+        {
+            <JobsColumnComponent JobColumn="@col" />
+        }
+        <AddColumnComponent />
+    </CascadingValue>
+</div>
 
 @code {
     [Parameter] public List<JobItem> Jobs { get; set; }
@@ -23,13 +23,25 @@
 
     public async Task UpdateJobAsync(JobColumn newStatus)
     {
-        var task = Jobs.SingleOrDefault(x => x.Id == Payload.Id);
+        var task = Columns.SelectMany(x => x.JobItems).SingleOrDefault(x => x.Id == Payload.Id);
+
+        foreach(var col in Columns)
+        {
+            col.JobItems.Remove(task);
+        }
+
 
         if (task != null)
         {
             task.JobColumnId = newStatus.Id;
-            await OnStatusUpdated.InvokeAsync(Payload);
+            await service.UpdateJobItem(task);
+            this.StateHasChanged();
         }
+    }
+
+    public void StateChanged()
+    {
+        this.StateHasChanged();
     }
 
     public async Task AddNewColumnJobAsync(string newColumn)
@@ -42,7 +54,6 @@
 
         column = await service.AddColumn(column);
 
-        this.Columns.Add(column);
         base.StateHasChanged();
     }
 }

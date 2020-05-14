@@ -1,5 +1,6 @@
 ﻿using KanbanBoard.Data.Entities;
 using KanbanBoard.Repositories.Abstraction;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,13 +30,26 @@ namespace KanbanBoard.Services
 
         public async Task<List<JobColumn>> GetColumns()
         {
-            var columns = await columnsRepo.GetAll();
+            var columns = await columnsRepo
+                .AsQueryable()
+                .Include(x => x.JobItems)
+                .ToListAsync();
             return columns.ToList();
         }
 
         public async Task<JobColumn> AddColumn(JobColumn column)
         {
             return await this.columnsRepo.Add(column);
+        }
+
+        public async Task<JobItem> AddItem(JobItem item)
+        {
+            return await this.itemsRepo.Add(item);
+        }
+
+        public async Task<JobItem> UpdateJobItem(JobItem item)
+        {
+            return await this.itemsRepo.Update(item);
         }
 
     }

@@ -1,4 +1,6 @@
 ﻿@using KanbanBoard.Data.Entities
+@using KanbanBoard.Services
+@inject MainService service
 
 <div class="job-status">
     <h3>@JobColumn.Name (@Jobs.Count()) - @JobColumn.Id</h3>
@@ -13,7 +15,7 @@
         {
             <JobItemComponent Item="job" />
         }
-
+        <AddJobComponent ColumnsComponent="@this" />
     </ul>
 </div>
 
@@ -28,7 +30,7 @@
     protected override void OnParametersSet()
     {
         Jobs.Clear();
-        Jobs.AddRange(Container.Jobs.Where(x => x.JobColumnId == JobColumn.Id));
+        Jobs.AddRange(this.JobColumn.JobItems ?? new List<JobItem>());
     }
 
     private void HandleDragEnter()
@@ -37,6 +39,19 @@
         dropClass = "can-drop";
     }
 
+    public async Task AddNewItemJobAsync(string Title, string Description)
+    {
+        var item = new JobItem
+        {
+            Title = Title,
+            Description = Description,
+            JobColumnId = this.JobColumn.Id
+        };
+
+        item = await service.AddItem(item);
+
+        this.Container.StateChanged();
+    }
     private void HandleDragLeave()
     {
         dropClass = "";
