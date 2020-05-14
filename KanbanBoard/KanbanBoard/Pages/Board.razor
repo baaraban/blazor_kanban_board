@@ -1,7 +1,42 @@
 ﻿@page "/board"
 
+@using KanbanBoard.Data.Entities
+
 <h3>The Board</h3>
+<JobsBoardComponent Jobs="Jobs" OnStatusUpdated="HandleStatusUpdated">
+    <JobsColumnComponent JobColumn="@Columns[0]"/>
+    <JobsColumnComponent JobColumn="@Columns[1]"/>
+</JobsBoardComponent>
+
+<hr />
+<p>Last updated job was: <strong>@lastUpdatedJob</strong></p>
+<hr />
+
+@foreach (var task in Jobs)
+{
+    <p>@task.Description - <strong>@task.JobColumn.Id</strong></p>
+}
 
 @code {
+    List<JobColumn> Columns = new List<JobColumn>();
+    List<JobItem> Jobs = new List<JobItem>();
+    string lastUpdatedJob = "";
 
+    protected override void OnInitialized()
+    {
+        Columns.Add(new JobColumn { Id = 0, Name = "ToDo", Place = 0 });
+        Columns.Add(new JobColumn { Id = 1, Name = "Done", Place = 1 });
+
+        Jobs.Add(new JobItem { Id = 1, Description = "Mow the lawn", JobColumn = Columns[0]});
+        Jobs.Add(new JobItem { Id = 2, Description = "Go to the gym", JobColumn = Columns[0]});
+        Jobs.Add(new JobItem { Id = 3, Description = "Call Ollie", JobColumn = Columns[0] });
+        Jobs.Add(new JobItem { Id = 4, Description = "Fix bike tyre", JobColumn = Columns[0]});
+        Jobs.Add(new JobItem { Id = 5, Description = "Finish blog post", JobColumn = Columns[0]});
+
+    }
+
+    void HandleStatusUpdated(JobItem updatedJob)
+    {
+        lastUpdatedJob = updatedJob.Description;
+    }
 }

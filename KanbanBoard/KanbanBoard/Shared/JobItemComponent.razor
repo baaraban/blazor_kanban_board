@@ -1,0 +1,17 @@
+﻿@using KanbanBoard.Data.Entities
+
+<li class="draggable" draggable="true" title="@Item.Title" @ondragstart="@(() => HandleDragStart(Item))">
+    <p class="description">@Item.Description</p>
+</li>
+
+@code {
+    [CascadingParameter] JobsBoardComponent Container { get; set; }
+
+    [Parameter]
+    public JobItem Item { get; set; }
+
+    private void HandleDragStart(JobItem selectedJob)
+    {
+        Container.Payload = selectedJob;
+    }
+}

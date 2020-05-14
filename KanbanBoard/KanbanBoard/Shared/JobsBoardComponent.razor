@@ -1,0 +1,26 @@
+﻿@using KanbanBoard.Data.Entities
+
+<div class="jobs-board">
+    <CascadingValue Value="this">
+        @ChildContent
+    </CascadingValue>
+</div>
+
+@code {
+    [Parameter] public List<JobItem> Jobs { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public EventCallback<JobItem> OnStatusUpdated { get; set; }
+
+    public JobItem Payload { get; set; }
+
+    public async Task UpdateJobAsync(JobColumn newStatus)
+    {
+        var task = Jobs.SingleOrDefault(x => x.Id == Payload.Id);
+
+        if (task != null)
+        {
+            task.JobColumnId = newStatus.Id;
+            await OnStatusUpdated.InvokeAsync(Payload);
+        }
+    }
+}

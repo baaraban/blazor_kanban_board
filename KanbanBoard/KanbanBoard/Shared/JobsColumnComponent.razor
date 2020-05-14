@@ -1,0 +1,51 @@
+﻿@using KanbanBoard.Data.Entities
+
+<div class="job-status">
+    <h3>@JobColumn.Name (@Jobs.Count())</h3>
+    <ul class="dropzone @dropClass"
+        ondragover="event.preventDefault();"
+        ondragstart="event.dataTransfer.setData('', event.target.id);"
+        @ondrop="HandleDrop"
+        @ondragenter="HandleDragEnter"
+        @ondragleave="HandleDragLeave">
+
+        @foreach (var job in Jobs)
+        {
+            <JobItemComponent Item="job" />
+        }
+
+    </ul>
+</div>
+
+@code {
+
+    [CascadingParameter] JobsBoardComponent Container { get; set; }
+    [Parameter] public JobColumn JobColumn { get; set; }
+
+    List<JobItem> Jobs = new List<JobItem>();
+    string dropClass = "";
+
+    protected override void OnParametersSet()
+    {
+        Jobs.Clear();
+        Jobs.AddRange(Container.Jobs.Where(x => x.JobColumnId == JobColumn.Id));
+    }
+
+    private void HandleDragEnter()
+    {
+        if (JobColumn.Id == Container.Payload.JobColumnId) return;
+        dropClass = "can-drop";
+    }
+
+    private void HandleDragLeave()
+    {
+        dropClass = "";
+    }
+
+    private async Task HandleDrop()
+    {
+        dropClass = "";
+
+        await Container.UpdateJobAsync(JobColumn);
+    }
+}
