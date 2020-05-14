@@ -49,10 +49,12 @@
         var column = new JobColumn
         {
             Name = newColumn,
-            Place = this.Columns.Count
+            Place = this.Columns.Count,
+            JobItems = new List<JobItem>()
         };
 
         column = await service.AddColumn(column);
+        this.Columns.Add(column);
 
         base.StateHasChanged();
     }
