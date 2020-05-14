@@ -150,7 +150,7 @@ app {
 
     /** Simple drag and drop with Blazor CSS **/
 
-    .jobs-container {
+    .jobs-board {
         display: flex;
         justify-content: space-around;
     }

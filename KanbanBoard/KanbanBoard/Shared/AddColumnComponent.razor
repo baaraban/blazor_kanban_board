@@ -1,0 +1,18 @@
+﻿<div class="job-status">
+    <input type="text" @bind="JobListName" />
+    @if (!string.IsNullOrEmpty(JobListName))
+    {
+        <button @onclick="Add">Add List</button>
+    }
+</div>
+@code {
+    [CascadingParameter] JobsBoardComponent Container { get; set; }
+
+    private async Task Add()
+    {
+        await Container.AddNewColumnJobAsync(JobListName);
+        JobListName = string.Empty;
+    }
+
+    string JobListName;
+}

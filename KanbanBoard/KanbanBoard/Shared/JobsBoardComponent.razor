@@ -1,14 +1,19 @@
 ﻿@using KanbanBoard.Data.Entities
 
-<div class="jobs-board">
-    <CascadingValue Value="this">
-        @ChildContent
-    </CascadingValue>
-</div>
+    <div class="jobs-board">
+        <CascadingValue Value="this">
+            @foreach (var col in Columns)
+            {
+                <JobsColumnComponent JobColumn="@col" />
+            }
+            <AddColumnComponent />
+        </CascadingValue>
+    </div>
 
 @code {
     [Parameter] public List<JobItem> Jobs { get; set; }
-    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public List<JobColumn> Columns { get; set; }
+
     [Parameter] public EventCallback<JobItem> OnStatusUpdated { get; set; }
 
     public JobItem Payload { get; set; }
@@ -22,5 +27,17 @@
             task.JobColumnId = newStatus.Id;
             await OnStatusUpdated.InvokeAsync(Payload);
         }
+    }
+
+    public async Task AddNewColumnJobAsync(string newColumn)
+    {
+        var column = new JobColumn
+        {
+            Name = newColumn,
+            Place = this.Columns.Count
+        };
+
+        this.Columns.Add(column);
+        base.StateHasChanged();
     }
 }
