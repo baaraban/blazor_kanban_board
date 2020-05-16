@@ -101,12 +101,12 @@
 
     public async Task DeleteItem(JobItem item)
     {
-        foreach (var column in Columns)
-        {
-            column.JobItems.Remove(item);
-        }
+        var column = Columns.FirstOrDefault(x => x.Id == item.JobColumnId);   
+        column.JobItems.Remove(item);
+        this.Renumerate(column);
 
         await service.DeleteJobItem(item);
+        await service.UpdateJobColumn(column);
 
         this.StateHasChanged();
     }
