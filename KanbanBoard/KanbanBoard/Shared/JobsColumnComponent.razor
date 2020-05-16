@@ -4,7 +4,14 @@
 
     <div class="job-status">
         <div class="job-header">
-            @JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" />
+            @if (!isEditingTitle)
+            {
+                <p @onclick="StartEditing">@JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
+            }
+            else
+            {
+                <p><input class="create-column-input" type="text" @bind-value="JobColumn.Name" @onfocusout="FinishEditing" @onmouseout="FinishEditing"/></p>
+            }
         </div>
         <ul class="dropzone @dropClass"
             ondragover="event.preventDefault();"
@@ -71,5 +78,23 @@
     private async Task DeleteColumn()
     {
         await Container.DeleteColumn(JobColumn);
+    }
+
+    bool isEditingTitle;
+    string preEditingValue;
+
+    private void StartEditing()
+    {
+        isEditingTitle = true;
+        preEditingValue = this.JobColumn.Name;
+    }
+
+    private async Task FinishEditing()
+    {
+        isEditingTitle = false;
+        if(preEditingValue != this.JobColumn.Name)
+        {
+            await this.service.UpdateJobColumn(this.JobColumn);
+        }
     }
 }
