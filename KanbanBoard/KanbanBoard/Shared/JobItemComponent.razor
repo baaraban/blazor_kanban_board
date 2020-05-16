@@ -33,10 +33,17 @@
         Container.DeleteItem(Item);
     }
 
-    private void EditItem()
+    private async Task EditItem()
     {
         var parameters = new ModalParameters();
         parameters.Add("ItemId", Item.Id);
-        Modal.Show<EditJobItem>("Edit Job Item", parameters);
-    } 
+        var modal = Modal.Show<EditJobItem>("Edit Job Item", parameters);
+        parameters.Add("thisRef", modal);
+        var result = await modal.Result;
+        if(!result.Cancelled)
+        {
+            this.Item = result.Data as JobItem;
+        }
+
+    }
 }

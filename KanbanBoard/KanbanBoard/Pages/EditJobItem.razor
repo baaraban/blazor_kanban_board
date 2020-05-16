@@ -2,6 +2,7 @@
 @inject MainService service
 @using KanbanBoard.Data.Entities
 @using KanbanBoard.Data.DTO
+@inject IModalService ModalService
 
 
 <div class="job-edit">
@@ -26,6 +27,7 @@
 @code {
     JobItem Item { get; set; }
     [ParameterAttribute] public int ItemId { get; set; }
+    [ParameterAttribute] public ModalReference thisRef { get; set; }
     List<ViewUser> users;
     private const string NULL_PLACEHOLDER = "_NULL_";
 
@@ -42,5 +44,7 @@
             Item.UserId = null;
         }
         await service.UpdateJobItem(Item);
+
+        thisRef.Close(ModalResult.Ok<JobItem>(Item));
     }
 }
