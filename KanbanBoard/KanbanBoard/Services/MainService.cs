@@ -1,4 +1,5 @@
-﻿using KanbanBoard.Data.Entities;
+﻿using KanbanBoard.Data.DTO;
+using KanbanBoard.Data.Entities;
 using KanbanBoard.Repositories.Abstraction;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -23,9 +24,11 @@ namespace KanbanBoard.Services
         }
 
 
-        public async Task<List<ApplicationUser>> GetAllUsers() {
+        public async Task<List<ViewUser>> GetAllUsers() {
             var users = await userRepo.GetAll();
-            return users.ToList();
+            return users
+                .Select(x => new ViewUser { UserId = x.Id, UserEmail = x.Email})
+                .ToList();
         }
 
         public async Task<List<JobColumn>> GetColumns()
@@ -65,6 +68,11 @@ namespace KanbanBoard.Services
         public async Task DeleteJobColumn(JobColumn item)
         {
             await this.columnsRepo.Delete(item);
+        }
+
+        public async Task<JobItem> GetJobItem(int itemId)
+        {
+            return await this.itemsRepo.Get(itemId);
         }
     }
 }

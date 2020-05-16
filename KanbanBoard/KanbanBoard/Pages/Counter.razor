@@ -6,6 +6,10 @@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+@inject IModalService Modal
+
+<button @onclick="@(() => Modal.Show<Error>("Modal Popup Example"))" class="btn btn-primary">View </button>
+
 @code {
     int currentCount = 0;
 

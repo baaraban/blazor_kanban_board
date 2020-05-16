@@ -1,0 +1,46 @@
+﻿@using KanbanBoard.Services
+@inject MainService service
+@using KanbanBoard.Data.Entities
+@using KanbanBoard.Data.DTO
+
+
+<div class="job-edit">
+    <div class="textual-edit">
+        <textarea @bind="Item.Title" />
+        <textarea @bind="Item.Description" />
+    </div>
+    <div class="user-dropdown">
+        <select @bind="Item.UserId">
+            <option value="@NULL_PLACEHOLDER">---</option>
+            @foreach (var user in users)
+            {
+                <option value=@user.UserId>@user.UserEmail</option>
+            }
+        </select>
+    </div>
+    <div class="submit-area">
+        <button @onclick="UpdateItem">Update Item</button>
+    </div>
+</div>
+
+@code {
+    JobItem Item { get; set; }
+    [ParameterAttribute] public int ItemId { get; set; }
+    List<ViewUser> users;
+    private const string NULL_PLACEHOLDER = "_NULL_";
+
+    protected async override Task OnInitializedAsync()
+    {
+        Item = await service.GetJobItem(ItemId);
+        users = await service.GetAllUsers();
+    }
+
+    private async Task UpdateItem()
+    {
+        if (Item.UserId == NULL_PLACEHOLDER)
+        {
+            Item.UserId = null;
+        }
+        await service.UpdateJobItem(Item);
+    }
+}

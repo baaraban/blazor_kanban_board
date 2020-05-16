@@ -19,6 +19,7 @@ using KanbanBoard.Data.Entities;
 using KanbanBoard.Repositories.Abstraction;
 using KanbanBoard.Repositories.Implementation;
 using KanbanBoard.Services;
+using Blazored.Modal;
 
 namespace KanbanBoard
 {
@@ -48,6 +49,8 @@ namespace KanbanBoard
                 {
                     o.DetailedErrors = true;
                 });
+            services.AddBlazoredModal();
+
             services.AddScoped<IdentityUser, ApplicationUser>();
 
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();

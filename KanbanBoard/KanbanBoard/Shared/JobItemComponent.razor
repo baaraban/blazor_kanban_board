@@ -1,13 +1,15 @@
 ﻿@using KanbanBoard.Data.Entities
+@using KanbanBoard.Pages
+@inject IModalService Modal
 
-    <li class="draggable"  draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragover="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
-        <span class="oi oi-circle-x" aria-hidden="true" @onclick="DeleteItem"></span>
-        <p class="title">@Item.Title - @Item.Place </p> 
-    </li>
+<li @ondblclick="EditItem" class="draggable" draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragover="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
+    <span class="oi oi-circle-x" aria-hidden="true" @onclick="DeleteItem"></span>
+    <p class="title">@Item.Title - @Item.Place </p>
+</li>
 
 @code {
     [CascadingParameter] JobsBoardComponent Container { get; set; }
-    
+
     [Parameter]
     public JobItem Item { get; set; }
 
@@ -30,4 +32,11 @@
     {
         Container.DeleteItem(Item);
     }
+
+    private void EditItem()
+    {
+        var parameters = new ModalParameters();
+        parameters.Add("ItemId", Item.Id);
+        Modal.Show<EditJobItem>("Edit Job Item", parameters);
+    } 
 }
