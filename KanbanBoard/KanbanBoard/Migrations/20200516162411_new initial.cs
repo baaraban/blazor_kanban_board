@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace KanbanBoard.Migrations
 {
-    public partial class Initial : Migration
+    public partial class newinitial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -177,7 +177,7 @@ namespace KanbanBoard.Migrations
                     Description = table.Column<string>(nullable: true),
                     Place = table.Column<int>(nullable: false),
                     UserId = table.Column<string>(nullable: true),
-                    JobColumnId = table.Column<int>(nullable: false)
+                    JobColumnId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {

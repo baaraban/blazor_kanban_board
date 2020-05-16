@@ -1,5 +1,6 @@
 ﻿@using KanbanBoard.Services
 @inject MainService service
+@inject IJSRuntime JsRuntime
 
 @using KanbanBoard.Data.Entities
 
@@ -19,24 +20,54 @@
 
     [Parameter] public EventCallback<JobItem> OnStatusUpdated { get; set; }
 
-    public JobItem Payload { get; set; }
+    public JobItem Dragged { get; set; }
+    public JobItem DraggedOver { get; set; }
+
+
+    public void Renumerate(JobColumn column)
+    {
+        var i = 0;
+        foreach (var job in column.JobItems)
+        {
+            job.Place = i++;
+        }
+    }
 
     public async Task UpdateJobAsync(JobColumn newStatus)
     {
-        var task = Columns.SelectMany(x => x.JobItems).SingleOrDefault(x => x.Id == Payload.Id);
-
-        foreach(var col in Columns)
+        if (newStatus.Id != Dragged.JobColumnId)
         {
-            col.JobItems.Remove(task);
+            var deleteFrom = Columns.First(x => x.Id == Dragged.JobColumnId);
+            deleteFrom.JobItems.Remove(Dragged);
+            this.Renumerate(deleteFrom);
+            await this.service.UpdateJobColumn(deleteFrom);
         }
 
-
-        if (task != null)
+        if (DraggedOver != null)
         {
-            task.JobColumnId = newStatus.Id;
-            await service.UpdateJobItem(task);
-            this.StateHasChanged();
+            if (Dragged.JobColumnId != DraggedOver.JobColumnId)
+            {
+                Dragged.Place = DraggedOver.Place;
+                foreach (var job in newStatus.JobItems.Where(x => x.Place >= DraggedOver.Place))
+                {
+                    job.Place += 1;
+                }
+            }
+            else
+            {
+                var swap = Dragged.Place;
+                Dragged.Place = DraggedOver.Place;
+                DraggedOver.Place = swap;
+            }
         }
+        else
+        {
+            Dragged.Place = newStatus.JobItems.Count - newStatus.Id != Dragged.JobColumnId ? 0 : 1;
+        }
+        Dragged.JobColumnId = newStatus.Id;
+        await service.UpdateJobColumn(newStatus);
+        this.StateHasChanged();
+
     }
 
     public void StateChanged()
@@ -57,5 +88,41 @@
         this.Columns.Add(column);
 
         base.StateHasChanged();
+    }
+
+    public async Task DeleteItem(JobItem item)
+    {
+        foreach (var column in Columns)
+        {
+            column.JobItems.Remove(item);
+        }
+
+        await service.DeleteJobItem(item);
+
+        this.StateHasChanged();
+    }
+
+    public async Task DeleteColumn(JobColumn item)
+    {
+        if (item.JobItems.Any())
+        {
+            bool confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Are you sure? All of the tasks in the board will be deleted too");
+            if (!confirmed)
+            {
+                return;
+            }
+
+            foreach (var it in item.JobItems.Select(x => x).ToList())
+            {
+                await service.DeleteJobItem(it);
+            }
+        }
+
+
+        Columns.Remove(item);
+
+        await service.DeleteJobColumn(item);
+
+        this.StateHasChanged();
     }
 }

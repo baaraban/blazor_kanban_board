@@ -8,6 +8,6 @@ namespace KanbanBoard.Data.Entities
         public string Name { get; set; }
         public int Place { get; set; }
 
-        public List<JobItem> JobItems { get; set; }
+        public List<JobItem> JobItems { get; set; } = new List<JobItem>();
     }
 }

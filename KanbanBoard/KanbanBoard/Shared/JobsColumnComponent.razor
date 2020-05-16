@@ -2,41 +2,44 @@
 @using KanbanBoard.Services
 @inject MainService service
 
-<div class="job-status">
-    <h3>@JobColumn.Name (@Jobs.Count()) - @JobColumn.Id</h3>
-    <ul class="dropzone @dropClass"
-        ondragover="event.preventDefault();"
-        ondragstart="event.dataTransfer.setData('', event.target.id);"
-        @ondrop="HandleDrop"
-        @ondragenter="HandleDragEnter"
-        @ondragleave="HandleDragLeave">
+    <div class="job-status">
+        <p><h3>@JobColumn.Name </h3> <span class="oi oi-minus" aria-hidden="true" @onclick="DeleteColumn"/></p>
+        <ul class="dropzone @dropClass"
+            ondragover="event.preventDefault();"
+            ondragstart="event.dataTransfer.setData('', event.target.id);"
+            @ondrop="HandleDrop"
+            @ondragenter="HandleDragEnter"
+            @ondragleave="HandleDragLeave">
 
-        @foreach (var job in Jobs)
-        {
-            <JobItemComponent Item="job" />
-        }
-        <AddJobComponent ColumnsComponent="@this" />
-    </ul>
-</div>
+            @foreach (var job in this.JobColumn.JobItems.OrderBy(x => x.Place))
+            {
+                <JobItemComponent Item="job" />
+            }
+            <AddJobComponent ColumnsComponent="@this" />
+        </ul>
+    </div>
 
 @code {
 
     [CascadingParameter] JobsBoardComponent Container { get; set; }
     [Parameter] public JobColumn JobColumn { get; set; }
 
-    List<JobItem> Jobs = new List<JobItem>();
     string dropClass = "";
-
-    protected override void OnParametersSet()
-    {
-        Jobs.Clear();
-        Jobs.AddRange(this.JobColumn.JobItems ?? new List<JobItem>());
-    }
 
     private void HandleDragEnter()
     {
-        if (JobColumn.Id == Container.Payload.JobColumnId) return;
+        if (JobColumn.Id == Container.Dragged.JobColumnId) return;
         dropClass = "can-drop";
+    }
+
+    public async Task Renumerate()
+    {
+        var i = 0;
+        foreach(var job in this.JobColumn.JobItems)
+        {
+            job.Place = i++;
+            await this.service.UpdateJobItem(job);
+        }
     }
 
     public async Task AddNewItemJobAsync(string Title, string Description)
@@ -45,12 +48,12 @@
         {
             Title = Title,
             Description = Description,
-            JobColumnId = this.JobColumn.Id
+            JobColumnId = this.JobColumn.Id,
+            Place = this.JobColumn.JobItems.Count()
         };
-
         item = await service.AddItem(item);
 
-        this.Container.StateChanged();
+        this.StateHasChanged();
     }
     private void HandleDragLeave()
     {
@@ -60,7 +63,11 @@
     private async Task HandleDrop()
     {
         dropClass = "";
-
         await Container.UpdateJobAsync(JobColumn);
+    }
+
+    private async Task DeleteColumn()
+    {
+        await Container.DeleteColumn(JobColumn);
     }
 }

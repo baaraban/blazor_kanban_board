@@ -52,5 +52,19 @@ namespace KanbanBoard.Services
             return await this.itemsRepo.Update(item);
         }
 
+        public async Task<JobColumn> UpdateJobColumn(JobColumn item)
+        {
+            return await this.columnsRepo.Update(item);
+        }
+
+        public async Task DeleteJobItem(JobItem item)
+        {
+            await this.itemsRepo.Delete(item);
+        }
+
+        public async Task DeleteJobColumn(JobColumn item)
+        {
+            await this.columnsRepo.Delete(item);
+        }
     }
 }

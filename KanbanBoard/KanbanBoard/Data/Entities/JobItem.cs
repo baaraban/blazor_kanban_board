@@ -1,10 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace KanbanBoard.Data.Entities
+﻿namespace KanbanBoard.Data.Entities
 {
     public class JobItem
     {
@@ -17,6 +11,6 @@ namespace KanbanBoard.Data.Entities
         public string UserId { get; set; }
 
         public JobColumn JobColumn { get; set; }
-        public int JobColumnId { get; set; }
+        public int? JobColumnId { get; set; }
     }
 }

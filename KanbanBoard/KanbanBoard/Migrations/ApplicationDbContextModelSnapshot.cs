@@ -42,7 +42,7 @@ namespace KanbanBoard.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("JobColumnId")
+                    b.Property<int?>("JobColumnId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Place")
@@ -276,8 +276,7 @@ namespace KanbanBoard.Migrations
                 {
                     b.HasOne("KanbanBoard.Data.Entities.JobColumn", "JobColumn")
                         .WithMany("JobItems")
-                        .HasForeignKey("JobColumnId")
-                        .IsRequired();
+                        .HasForeignKey("JobColumnId");
 
                     b.HasOne("KanbanBoard.Data.Entities.ApplicationUser", "User")
                         .WithMany("JobItems")
