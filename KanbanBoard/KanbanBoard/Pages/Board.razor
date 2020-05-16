@@ -7,17 +7,15 @@
 @attribute [Authorize]
 
 <h3>The Board</h3>
-<JobsBoardComponent Columns="Columns" Jobs="Jobs" />
+<JobsBoardComponent Columns="Columns" />
 <hr />
 
 @code {
     List<JobColumn> Columns = new List<JobColumn>();
-    List<JobItem> Jobs = new List<JobItem>();
     string lastUpdatedJob = "";
 
     protected async override Task OnInitializedAsync()
     {
         Columns = await service.GetColumns();
-        Jobs = Columns.SelectMany(x => x.JobItems ?? new List<JobItem>()).ToList();
     }
 }

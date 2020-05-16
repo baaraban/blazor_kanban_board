@@ -15,7 +15,6 @@
 </div>
 
 @code {
-    [Parameter] public List<JobItem> Jobs { get; set; }
     [Parameter] public List<JobColumn> Columns { get; set; }
 
     [Parameter] public EventCallback<JobItem> OnStatusUpdated { get; set; }
@@ -62,7 +61,17 @@
         }
         else
         {
-            Dragged.Place = newStatus.JobItems.Count - newStatus.Id != Dragged.JobColumnId ? 0 : 1;
+            if(newStatus.Id != Dragged.JobColumnId)
+            {
+                Dragged.Place = newStatus.JobItems.Count;
+            } else
+            {
+                foreach (var job in newStatus.JobItems.Where(x => x.Place > Dragged.Place))
+                {
+                    job.Place -= 1;
+                }
+                Dragged.Place = newStatus.JobItems.Count - 1;
+            }
         }
         Dragged.JobColumnId = newStatus.Id;
         await service.UpdateJobColumn(newStatus);
