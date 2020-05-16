@@ -7,10 +7,13 @@
 
 <div class="job-edit">
     <div class="textual-edit">
-        <textarea @bind="Item.Title" />
-        <textarea @bind="Item.Description" />
+        <span>Title:</span><textarea @bind="Item.Title" />
+        <hr />
+        <span>Description: </span><textarea @bind="Item.Description" />
+        <hr/>
     </div>
     <div class="user-dropdown">
+        <span>Assignee:</span>
         <select @bind="Item.UserId">
             <option value="@NULL_PLACEHOLDER">---</option>
             @foreach (var user in users)

@@ -188,6 +188,38 @@ div.add-controls {
         border-radius: 3px;
     }
 
+button.blazored-modal-close span {
+    color: darkred;
+}
+
+.job-edit {
+    width: 400px;
+    height: 250px;
+}
+
+.textual-edit span {
+    float: left;
+    width: 86px;
+}
+
+.textual-edit textarea {
+    margin-left: 15px;
+}
+
+.user-dropdown {
+    margin-bottom: 12px;
+    margin-top: 12px;
+}
+
+div.job-edit div.submit-area button {
+    background-color: #5aac44;
+    box-shadow: none;
+    border: none;
+    color: #fff;
+    float: right;
+    border-radius: 3px;
+}
+
 
 @media (max-width: 767.98px) {
     .main .top-row {
