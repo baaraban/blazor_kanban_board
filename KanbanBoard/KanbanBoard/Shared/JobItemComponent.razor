@@ -1,10 +1,8 @@
 ﻿@using KanbanBoard.Data.Entities
 
     <li class="draggable"  draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragover="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
-        <p><span class="oi oi-minus" aria-hidden="true" @onclick="DeleteItem"></span></p>
-        <p class="title">@Item.Title - @Item.Place</p>
-        <hr />
-        <p class="description">@Item.Description</p>
+        <span class="oi oi-circle-x" aria-hidden="true" @onclick="DeleteItem"></span>
+        <p class="title">@Item.Title - @Item.Place </p> 
     </li>
 
 @code {

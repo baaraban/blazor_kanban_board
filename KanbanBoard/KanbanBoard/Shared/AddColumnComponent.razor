@@ -1,18 +1,36 @@
 ﻿<div class="job-status">
-    <input type="text" @bind="JobListName" />
-    @if (!string.IsNullOrEmpty(JobListName))
+    @if (enteringState)
     {
-        <button @onclick="Add">Add List</button>
+        <input class="create-column-input" type="text" @bind="JobListName" />
+        <div class="add-controls">
+            <button @onclick="Add">Add List</button>
+            <span class="oi oi-circle-x" @onclick="() => SetState(false)" />
+        </div>
     }
+    else
+    {
+        <div class="column-create-placeholder" @onclick="() => SetState(true)">
+            <span class="oi oi-plus" /> Add New Job List
+        </div>
+    }
+
 </div>
 @code {
     [CascadingParameter] JobsBoardComponent Container { get; set; }
 
-    private async Task Add()
+    private void SetState(bool state)
     {
-        await Container.AddNewColumnJobAsync(JobListName);
-        JobListName = string.Empty;
+        this.enteringState = state;
     }
 
+    private async Task Add()
+    {
+        if (string.IsNullOrEmpty(JobListName)) { return; }
+        await Container.AddNewColumnJobAsync(JobListName);
+        JobListName = string.Empty;
+        enteringState = false;
+    }
+
+    bool enteringState;
     string JobListName;
 }

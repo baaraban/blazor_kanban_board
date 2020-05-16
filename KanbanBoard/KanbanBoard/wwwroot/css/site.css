@@ -111,6 +111,84 @@ app {
     color: red;
 }
 
+.column-create-placeholder {
+    cursor: pointer;
+}
+
+span.oi.oi-circle-x {
+    cursor: pointer;
+}
+
+span.oi.oi-x {
+    cursor: pointer;
+}
+
+div.job-header {
+    text-align: center;
+    font-size: 20px;
+    height: 50px;
+}
+
+
+.draggable span.oi.oi-circle-x {
+    cursor: pointer;
+    float: right;
+    color: darkred;
+}
+
+.job-create-placeholder {
+    cursor: pointer;
+}
+
+
+li.draggable-job-editing textarea {
+    resize: none;
+}
+
+
+li.draggable-job-editing {
+    padding: 10px 15px;
+    border: 1px solid #0c2160;
+    cursor: grab;
+    background: #4c5787;
+    color: #ffffff;
+    border-radius: 5px;
+    height: 180px;
+    width: 250px;
+}
+
+.draggable-job-editing span.oi.oi-circle-x {
+    cursor: pointer;
+    margin-left: 10px;
+    color: darkred;
+    font-size: 18px;
+    height: 100%;
+}
+
+
+input.create-column-input {
+    background: #fff;
+    border: none;
+    box-shadow: inset 0 0 0 2px #0079bf;
+    display: block;
+    margin: 0;
+    transition: margin 85ms ease-in,background 85ms ease-in;
+    width: 100%;
+}
+
+div.add-controls {
+    padding-top: 5px;
+}
+
+    div.add-controls button {
+        background-color: #5aac44;
+        box-shadow: none;
+        border: none;
+        color: #fff;
+        border-radius: 3px;
+    }
+
+
 @media (max-width: 767.98px) {
     .main .top-row {
         display: none;
@@ -179,15 +257,18 @@ app {
         border: 2px dashed green;
     }
 
+
     .draggable {
         margin-bottom: 10px;
-        padding: 10px 25px;
-        border: 1px solid #424d5c;
+        padding: 10px 15px;
+        border: 1px solid #0c2160;
         cursor: grab;
-        background: #5c6b7f;
+        background: #4c5787;
         color: #ffffff;
         border-radius: 5px;
+        height: 78px;
         width: 250px;
+        display: inline-block;
     }
 
         .draggable:active {
@@ -215,6 +296,7 @@ app {
             font-size: 11px;
         }
 
+    
     @media (max-width: 767.98px) {
         .main .top-row {
             display: none;

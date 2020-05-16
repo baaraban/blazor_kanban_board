@@ -3,7 +3,9 @@
 @inject MainService service
 
     <div class="job-status">
-        <p><h3>@JobColumn.Name </h3> <span class="oi oi-minus" aria-hidden="true" @onclick="DeleteColumn"/></p>
+        <div class="job-header">
+            @JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" />
+        </div>
         <ul class="dropzone @dropClass"
             ondragover="event.preventDefault();"
             ondragstart="event.dataTransfer.setData('', event.target.id);"

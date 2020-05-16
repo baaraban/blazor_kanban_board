@@ -5,14 +5,10 @@
 @using KanbanBoard.Data.Entities
 
 @attribute [Authorize]
-
-<h3>The Board</h3>
 <JobsBoardComponent Columns="Columns" />
-<hr />
 
 @code {
     List<JobColumn> Columns = new List<JobColumn>();
-    string lastUpdatedJob = "";
 
     protected async override Task OnInitializedAsync()
     {

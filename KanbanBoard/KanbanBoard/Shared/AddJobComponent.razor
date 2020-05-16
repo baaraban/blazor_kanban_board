@@ -1,12 +1,23 @@
-﻿
-    <li class="draggable" draggable="true">
-        <input class="title" type="text" @bind="Title" />
-        <input class="description" type="text" @bind="Description" />
-        @if (!string.IsNullOrEmpty(Title))
-        {
-            <button @onclick="Add">Add Item</button>
-        }
+﻿@if (enteringState)
+{
+    <li class="draggable-job-editing">
+        <textarea placeholder="Title..." class="title" type="text" @bind="Title" />
+        <textarea placeholder="Descripsion..."class="description" type="text" @bind="Description" />
+        <div class="add-controls">
+            <button @onclick="Add">Add To List</button>
+            <span class="oi oi-circle-x" @onclick="() => SetState(false)" />
+        </div>
     </li>
+}
+else
+{
+    <li class="draggable" draggable="false">
+        <div class="job-create-placeholder" @onclick="() => SetState(true)">
+            <span class="oi oi-plus" /> Add New Job List
+        </div>
+
+    </li>
+}
 
 @code {
     [CascadingParameter] JobsBoardComponent Container { get; set; }
@@ -15,10 +26,19 @@
 
     private async Task Add()
     {
+
         await ColumnsComponent.AddNewItemJobAsync(Title, Description);
         Title = string.Empty;
         Description = string.Empty;
+        enteringState = false;
     }
+
+    private void SetState(bool state)
+    {
+        this.enteringState = state;
+    }
+
+    bool enteringState;
 
     string Title;
     string Description;
