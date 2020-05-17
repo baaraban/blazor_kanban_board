@@ -7,7 +7,7 @@
 
 <div class="jobs-board">
     <CascadingValue Value="this">
-        @foreach (var col in Columns)
+        @foreach (var col in Columns.OrderBy(x => x.Place))
         {
             <JobsColumnComponent JobColumn="@col" />
         }
@@ -23,6 +23,9 @@
     public JobItem Dragged { get; set; }
     public JobItem DraggedOver { get; set; }
 
+    public JobColumn DraggedColumn { get; set; }
+    public JobColumn DraggedOverColumn { get; set; }
+
 
     public void Renumerate(JobColumn column)
     {
@@ -33,7 +36,7 @@
         }
     }
 
-    private async Task HandleSwap(JobItem from, JobItem to)
+    public async Task HandleSwap(JobItem from, JobItem to)
     {
         var swap = from.Place;
         from.Place = to.Place;
@@ -42,6 +45,26 @@
         await this.itemService.UpdateJobItem(from);
         await this.itemService.UpdateJobItem(to);
         this.StateHasChanged();
+    }
+
+    public async Task HandleSwap(JobColumn from, JobColumn to)
+    {
+        if(to == null || from == null)
+        {
+            return;
+        }
+
+        var swap = from.Place;
+        from.Place = to.Place;
+        to.Place = swap;
+
+        await this.columnService.UpdateJobColumn(from);
+        await this.columnService.UpdateJobColumn(to);
+
+        this.StateHasChanged();
+
+        this.DraggedColumn = null;
+        this.DraggedOverColumn = null;
     }
 
     public async Task UpdateJobAsync(JobColumn newStatus)
@@ -68,6 +91,9 @@
 
         await this.columnService.UpdateJobColumn(newStatus);
         this.StateHasChanged();
+
+        this.Dragged = null;
+        this.DraggedOver = null;
 
     }
 

@@ -4,10 +4,14 @@
 @inject IItemService itemService
 
 <div class="job-status">
-    <div class="job-header">
+    <div class="job-header" draggable="true"
+         ondragover="event.preventDefault();"
+         @ondragstart="HandleColumnStart"
+         @ondragenter="HandleColumnEnter"
+         @ondrop="HandleColumnDrop">
         @if (!isEditingTitle)
         {
-            <p @onclick="StartEditing">@JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
+            <p @onclick="StartEditing">@JobColumn.Place - @JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
         }
         else
         {
@@ -36,12 +40,6 @@
 
     string dropClass = "";
 
-    private void HandleDragEnter()
-    {
-        if (JobColumn.Id == Container.Dragged.JobColumnId) return;
-        dropClass = "can-drop";
-    }
-
     public async Task Renumerate()
     {
         var i = 0;
@@ -67,18 +65,42 @@
     }
     private void HandleDragLeave()
     {
+        if (Container.Dragged == null) { return; }
         dropClass = "";
     }
 
     private async Task HandleDrop()
     {
+        if (Container.Dragged == null) { return; }
         dropClass = "";
         await Container.UpdateJobAsync(JobColumn);
+    }
+
+    private void HandleDragEnter()
+    {
+        if (Container.Dragged == null) { return; }
+        if (JobColumn.Id == Container.Dragged.JobColumnId) return;
+        dropClass = "can-drop";
     }
 
     private async Task DeleteColumn()
     {
         await Container.DeleteColumn(JobColumn);
+    }
+
+    private async Task HandleColumnDrop()
+    {
+        await this.Container.HandleSwap(this.Container.DraggedColumn, this.Container.DraggedOverColumn);
+    }
+
+    private void HandleColumnStart()
+    {
+        this.Container.DraggedColumn = this.JobColumn;
+    }
+
+    private void HandleColumnEnter()
+    {
+        this.Container.DraggedOverColumn = this.JobColumn;
     }
 
     bool isEditingTitle;
