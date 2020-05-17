@@ -20,7 +20,7 @@ namespace KanbanBoard.Services.Implementation
 
         public async Task DeleteJobItem(JobItem item)
         {
-            await this.repository.Delete(item);
+            await this.repository.Delete(await this.repository.Get(item.Id));
         }
 
         public async Task<JobItem> GetJobItem(int itemId)

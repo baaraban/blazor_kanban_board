@@ -1,9 +1,12 @@
 ﻿@using KanbanBoard.Services.Abstraction
+@using KanbanBoard.Data.Entities
 @inject IItemService itemService
 @inject IColumnService columnService
 @inject IJSRuntime JsRuntime
+@using Microsoft.AspNetCore.SignalR.Client
 
-@using KanbanBoard.Data.Entities
+@inject NavigationManager NavigationManager
+
 
 <div class="jobs-board">
     <CascadingValue Value="this">
@@ -26,6 +29,16 @@
     public JobColumn DraggedColumn { get; set; }
     public JobColumn DraggedOverColumn { get; set; }
 
+    private HubConnection hubConnection;
+
+    protected async override Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/boardHub"))
+            .Build();
+
+        await hubConnection.StartAsync();
+    }
 
     public void Renumerate(JobColumn column)
     {
@@ -49,7 +62,7 @@
 
     public async Task HandleSwap(JobColumn from, JobColumn to)
     {
-        if(to == null || from == null)
+        if (to == null || from == null)
         {
             return;
         }
@@ -69,7 +82,7 @@
 
     public async Task UpdateJobAsync(JobColumn newStatus)
     {
-        if(Dragged.JobColumnId == newStatus.Id && DraggedOver != null)
+        if (Dragged.JobColumnId == newStatus.Id && DraggedOver != null)
         {
             await HandleSwap(Dragged, DraggedOver);
             return;
@@ -78,18 +91,22 @@
         var deleteFrom = Columns.First(x => x.Id == Dragged.JobColumnId);
         deleteFrom.JobItems.Remove(Dragged);
         this.Renumerate(deleteFrom);
-
+        
         var index = DraggedOver == null ? newStatus.JobItems.Count : newStatus.JobItems.IndexOf(DraggedOver);
         newStatus.JobItems.Insert(index, Dragged);
         Dragged.JobColumnId = newStatus.Id;
         this.Renumerate(newStatus);
 
-        if(deleteFrom != newStatus)
+        
+        await this.columnService.UpdateJobColumn(newStatus);
+
+        if (deleteFrom.Id != newStatus.Id)
         {
             await this.columnService.UpdateJobColumn(deleteFrom);
+            await this.hubConnection.SendAsync("ItemDeleted", deleteFrom.Id, Dragged.Id);
+            await this.hubConnection.SendAsync("ItemAdded", newStatus.Id, Dragged.Id);
         }
 
-        await this.columnService.UpdateJobColumn(newStatus);
         this.StateHasChanged();
 
         this.Dragged = null;
@@ -147,6 +164,14 @@
 
         Columns.Remove(item);
         await this.columnService.DeleteJobColumn(item);
+
+        var i = 0;
+        foreach (var col in Columns)
+        {
+            col.Place = i++;
+            await this.columnService.UpdateJobColumn(col);
+        }
+
         this.StateHasChanged();
     }
 }

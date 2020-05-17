@@ -5,6 +5,9 @@
 @inject IUserService userService
 @inject IItemService itemService
 
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager NavigationManager
+
 
 <div class="job-edit">
     <div class="textual-edit">
@@ -34,12 +37,26 @@
     [ParameterAttribute] public ModalReference thisRef { get; set; }
     List<ViewUser> users;
 
+    private HubConnection hubConnection;
+
     private const string NULL_PLACEHOLDER = "_NULL_";
 
     protected async override Task OnInitializedAsync()
     {
         Item = await this.itemService.GetJobItem(ItemId);
         users = await this.userService.GetAllUsers();
+
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/boardHub"))
+            .Build();
+
+        hubConnection.On<int>("ItemUpdate", async (itemId) =>
+        {
+            this.Item = await this.itemService.GetJobItem(itemId);
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
     }
 
     private async Task UpdateItem()
@@ -50,6 +67,7 @@
         }
 
         await this.itemService.UpdateJobItem(Item);
+        await this.hubConnection.SendAsync("ItemUpdate", Item.Id);
         thisRef.Close(ModalResult.Ok<JobItem>(Item));
     }
 }

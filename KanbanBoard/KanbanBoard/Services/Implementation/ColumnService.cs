@@ -40,5 +40,16 @@ namespace KanbanBoard.Services.Implementation
         {
             await this.repository.Delete(item);
         }
+
+        public async Task<JobColumn> GetColumn(int columnId)
+        {
+            return await this.repository.Get(columnId);
+        }
+
+        public async Task<List<JobItem>> GetJobItems(int columnId)
+        {
+            var column = await this.GetColumn(columnId);
+            return column.JobItems;
+        }
     }
 }

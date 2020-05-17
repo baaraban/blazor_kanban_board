@@ -1,11 +1,15 @@
 ﻿@using KanbanBoard.Data.Entities
 @using KanbanBoard.Services.Abstraction
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
 @inject IColumnService columnService
 @inject IItemService itemService
 
 <div class="job-status">
     <div class="job-header" draggable="true"
          ondragover="event.preventDefault();"
+         ondragleave="event.preventDefault();"
          @ondragstart="HandleColumnStart"
          @ondragenter="HandleColumnEnter"
          @ondrop="HandleColumnDrop">
@@ -37,6 +41,7 @@
 
     [CascadingParameter] JobsBoardComponent Container { get; set; }
     [Parameter] public JobColumn JobColumn { get; set; }
+    private HubConnection hubConnection;
 
     string dropClass = "";
 
@@ -50,6 +55,61 @@
         }
     }
 
+    protected async override Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/boardHub"))
+            .Build();
+
+        hubConnection.On<int>("ColumnUpdate", async (itemId) =>
+        {
+            if (itemId == this.JobColumn.Id)
+            {
+                this.JobColumn = await this.columnService.GetColumn(itemId);
+                StateHasChanged();
+            }
+        });
+
+        hubConnection.On<int, int>("ItemAdded", async (columnId, itemId) =>
+        {
+            if (columnId == this.JobColumn.Id)
+            {
+                if (this.JobColumn.JobItems.Any(x => x.Id == itemId)) { return; }
+                var item = await this.itemService.GetJobItem(itemId);
+                this.JobColumn.JobItems.Append(item);
+                foreach (var it in this.JobColumn.JobItems)
+                {
+                    var newer = await this.itemService.GetJobItem(it.Id);
+                    it.Place = newer.Place;
+                    it.JobColumnId = newer.JobColumnId;
+                }
+                StateHasChanged();
+            }
+        });
+
+        hubConnection.On<int, int>("ItemDeleted", async (columnId, itemId) =>
+        {
+            if (columnId == this.JobColumn.Id)
+            {
+                var item = this.JobColumn.JobItems.FirstOrDefault(x => x.Id == itemId);
+                if (item == null)
+                {
+                    return;
+                }
+                this.JobColumn.JobItems.Remove(item);
+                foreach (var it in this.JobColumn.JobItems)
+                {
+                    var newer = await this.itemService.GetJobItem(it.Id);
+                    it.Place = newer.Place;
+                    it.JobColumnId = newer.JobColumnId;
+                }
+                StateHasChanged();
+            }
+        });
+
+        await hubConnection.StartAsync();
+    }
+
     public async Task AddNewItemJobAsync(string Title, string Description)
     {
         var item = new JobItem
@@ -60,6 +120,8 @@
             Place = this.JobColumn.JobItems.Count()
         };
         item = await this.itemService.AddItem(item);
+
+        await this.hubConnection.SendAsync("ItemAdded", this.JobColumn.Id, item.Id);
 
         this.StateHasChanged();
     }
@@ -118,6 +180,7 @@
         if (preEditingValue != this.JobColumn.Name)
         {
             await this.columnService.UpdateJobColumn(this.JobColumn);
+            await this.hubConnection.SendAsync("ColumnUpdate", this.JobColumn.Id);
         }
     }
 }

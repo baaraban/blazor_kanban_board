@@ -14,6 +14,9 @@ using KanbanBoard.Repositories.Implementation;
 using Blazored.Modal;
 using KanbanBoard.Services.Abstraction;
 using KanbanBoard.Services.Implementation;
+using KanbanBoard.Hubs;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.Linq;
 
 namespace KanbanBoard
 {
@@ -44,6 +47,11 @@ namespace KanbanBoard
                     o.DetailedErrors = true;
                 });
             services.AddBlazoredModal();
+            services.AddSignalR();
+            services.AddResponseCompression(opt =>
+            {
+                opt.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
+            });
 
             services.AddScoped<IdentityUser, ApplicationUser>();
 
@@ -84,6 +92,7 @@ namespace KanbanBoard
             {
                 endpoints.MapControllers();
                 endpoints.MapBlazorHub();
+                endpoints.MapHub<BoardHub>("/boardHub");
                 endpoints.MapFallbackToPage("/_Host");
             });
         }

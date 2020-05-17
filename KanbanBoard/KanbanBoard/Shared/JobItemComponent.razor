@@ -1,10 +1,15 @@
 ﻿@using KanbanBoard.Data.Entities
 @using KanbanBoard.Pages
+@using KanbanBoard.Services.Abstraction
+@using Microsoft.AspNetCore.SignalR.Client
+
+@inject NavigationManager NavigationManager
+@inject IItemService  itemService
 @inject IModalService Modal
 
 <li @ondblclick="EditItem" class="draggable" draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragenter="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
     <span class="oi oi-circle-x" aria-hidden="true" @onclick="DeleteItem"></span>
-    <p class="title"> @Item.Place - @Item.Title </p>
+    <p class="title">@Item.Place - @Item.Title </p>
 </li>
 
 @code {
@@ -12,6 +17,25 @@
 
     [Parameter]
     public JobItem Item { get; set; }
+    private HubConnection hubConnection;
+
+    protected async override Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/boardHub"))
+            .Build();
+
+        hubConnection.On<int>("ItemUpdate", async (itemId) =>
+        {
+            if (itemId == this.Item.Id)
+            {
+                this.Item = await this.itemService.GetJobItem(itemId);
+                StateHasChanged();
+            }
+        });
+
+        await hubConnection.StartAsync();
+    }
 
     private void HandleDragStart(JobItem selectedJob)
     {
@@ -31,6 +55,7 @@
     private async Task DeleteItem()
     {
         await Container.DeleteItem(Item);
+        await this.hubConnection.SendAsync("ItemDeleted", this.Item.JobColumnId, Item.Id);
     }
 
     private async Task EditItem()
@@ -40,7 +65,7 @@
         var modal = Modal.Show<EditJobItem>("Edit Job Item", parameters);
         parameters.Add("thisRef", modal);
         var result = await modal.Result;
-        if(!result.Cancelled)
+        if (!result.Cancelled)
         {
             this.Item = result.Data as JobItem;
         }

@@ -32,8 +32,12 @@ namespace KanbanBoard.Repositories.Implementation
             await this.context.SaveChangesAsync();
         }
 
-        public async Task<TEntity> Get(object id) => await this.table.FindAsync(id);
-
+        public async Task<TEntity> Get(object id)
+        {
+            var result = await this.table.FindAsync(id);
+            await this.context.Entry(result).ReloadAsync();
+            return result;
+        }
         public async Task<IEnumerable<TEntity>> GetAll() => await this.table.ToListAsync();
 
         public async Task<TEntity> Update(TEntity entity)
