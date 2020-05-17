@@ -4,7 +4,7 @@
 
 <li @ondblclick="EditItem" class="draggable" draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragenter="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
     <span class="oi oi-circle-x" aria-hidden="true" @onclick="DeleteItem"></span>
-    <p class="title">@Item.Title - @Item.Place </p>
+    <p class="title"> @Item.Place - @Item.Title </p>
 </li>
 
 @code {

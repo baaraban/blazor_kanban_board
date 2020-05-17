@@ -11,7 +11,7 @@
          @ondrop="HandleColumnDrop">
         @if (!isEditingTitle)
         {
-            <p @onclick="StartEditing">@JobColumn.Place - @JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
+            <p @onclick="StartEditing"> @JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
         }
         else
         {
