@@ -32,48 +32,39 @@
         }
     }
 
+    private async Task HandleSwap(JobItem from, JobItem to)
+    {
+        var swap = from.Place;
+        from.Place = to.Place;
+        to.Place = swap;
+
+        await this.service.UpdateJobItem(from);
+        await this.service.UpdateJobItem(to);
+        this.StateHasChanged();
+    }
+
     public async Task UpdateJobAsync(JobColumn newStatus)
     {
-        if (newStatus.Id != Dragged.JobColumnId)
+        if(Dragged.JobColumnId == newStatus.Id && DraggedOver != null)
         {
-            var deleteFrom = Columns.First(x => x.Id == Dragged.JobColumnId);
-            deleteFrom.JobItems.Remove(Dragged);
-            this.Renumerate(deleteFrom);
+            await HandleSwap(Dragged, DraggedOver);
+            return;
+        }
+
+        var deleteFrom = Columns.First(x => x.Id == Dragged.JobColumnId);
+        deleteFrom.JobItems.Remove(Dragged);
+        this.Renumerate(deleteFrom);
+
+        var index = DraggedOver == null ? newStatus.JobItems.Count : newStatus.JobItems.IndexOf(DraggedOver);
+        newStatus.JobItems.Insert(index, Dragged);
+        Dragged.JobColumnId = newStatus.Id;
+        this.Renumerate(newStatus);
+
+        if(deleteFrom != newStatus)
+        {
             await this.service.UpdateJobColumn(deleteFrom);
         }
 
-        if (DraggedOver != null)
-        {
-            if (Dragged.JobColumnId != DraggedOver.JobColumnId)
-            {
-                Dragged.Place = DraggedOver.Place;
-                foreach (var job in newStatus.JobItems.Where(x => x.Place >= DraggedOver.Place))
-                {
-                    job.Place += 1;
-                }
-            }
-            else
-            {
-                var swap = Dragged.Place;
-                Dragged.Place = DraggedOver.Place;
-                DraggedOver.Place = swap;
-            }
-        }
-        else
-        {
-            if(newStatus.Id != Dragged.JobColumnId)
-            {
-                Dragged.Place = newStatus.JobItems.Count;
-            } else
-            {
-                foreach (var job in newStatus.JobItems.Where(x => x.Place > Dragged.Place))
-                {
-                    job.Place -= 1;
-                }
-                Dragged.Place = newStatus.JobItems.Count - 1;
-            }
-        }
-        Dragged.JobColumnId = newStatus.Id;
         await service.UpdateJobColumn(newStatus);
         this.StateHasChanged();
 
@@ -101,7 +92,7 @@
 
     public async Task DeleteItem(JobItem item)
     {
-        var column = Columns.FirstOrDefault(x => x.Id == item.JobColumnId);   
+        var column = Columns.FirstOrDefault(x => x.Id == item.JobColumnId);
         column.JobItems.Remove(item);
         this.Renumerate(column);
 

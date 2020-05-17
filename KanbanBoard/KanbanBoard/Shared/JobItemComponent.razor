@@ -2,7 +2,7 @@
 @using KanbanBoard.Pages
 @inject IModalService Modal
 
-<li @ondblclick="EditItem" class="draggable" draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragover="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
+<li @ondblclick="EditItem" class="draggable" draggable="true" title="@Item.Title" @ondragleave="HandleDragLeave" @ondragenter="HandleDragOver" @ondragstart="@(() => HandleDragStart(Item))">
     <span class="oi oi-circle-x" aria-hidden="true" @onclick="DeleteItem"></span>
     <p class="title">@Item.Title - @Item.Place </p>
 </li>
