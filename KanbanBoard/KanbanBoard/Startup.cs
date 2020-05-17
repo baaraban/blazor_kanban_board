@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +11,9 @@ using KanbanBoard.Data;
 using KanbanBoard.Data.Entities;
 using KanbanBoard.Repositories.Abstraction;
 using KanbanBoard.Repositories.Implementation;
-using KanbanBoard.Services;
 using Blazored.Modal;
+using KanbanBoard.Services.Abstraction;
+using KanbanBoard.Services.Implementation;
 
 namespace KanbanBoard
 {
@@ -57,8 +51,10 @@ namespace KanbanBoard
             
             services.AddScoped<DbContext, ApplicationDbContext>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-            services.AddScoped<MainService>();
-
+            
+            services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IColumnService, ColumnService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,32 +1,33 @@
 ﻿@using KanbanBoard.Data.Entities
-@using KanbanBoard.Services
-@inject MainService service
+@using KanbanBoard.Services.Abstraction
+@inject IColumnService columnService
+@inject IItemService itemService
 
-    <div class="job-status">
-        <div class="job-header">
-            @if (!isEditingTitle)
-            {
-                <p @onclick="StartEditing">@JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
-            }
-            else
-            {
-                <p><input class="create-column-input" type="text" @bind-value="JobColumn.Name" @onfocusout="FinishEditing" @onmouseout="FinishEditing"/></p>
-            }
-        </div>
-        <ul class="dropzone @dropClass"
-            ondragover="event.preventDefault();"
-            ondragstart="event.dataTransfer.setData('', event.target.id);"
-            @ondrop="HandleDrop"
-            @ondragenter="HandleDragEnter"
-            @ondragleave="HandleDragLeave">
-
-            @foreach (var job in this.JobColumn.JobItems.OrderBy(x => x.Place))
-            {
-                <JobItemComponent Item="job" />
-            }
-            <AddJobComponent ColumnsComponent="@this" />
-        </ul>
+<div class="job-status">
+    <div class="job-header">
+        @if (!isEditingTitle)
+        {
+            <p @onclick="StartEditing">@JobColumn.Name <span class="oi oi-x" aria-hidden="true" @onclick="DeleteColumn" /></p>
+        }
+        else
+        {
+            <p><input class="create-column-input" type="text" @bind-value="JobColumn.Name" @onfocusout="FinishEditing" @onmouseout="FinishEditing" /></p>
+        }
     </div>
+    <ul class="dropzone @dropClass"
+        ondragover="event.preventDefault();"
+        ondragstart="event.dataTransfer.setData('', event.target.id);"
+        @ondrop="HandleDrop"
+        @ondragenter="HandleDragEnter"
+        @ondragleave="HandleDragLeave">
+
+        @foreach (var job in this.JobColumn.JobItems.OrderBy(x => x.Place))
+        {
+            <JobItemComponent Item="job" />
+        }
+        <AddJobComponent ColumnsComponent="@this" />
+    </ul>
+</div>
 
 @code {
 
@@ -44,10 +45,10 @@
     public async Task Renumerate()
     {
         var i = 0;
-        foreach(var job in this.JobColumn.JobItems)
+        foreach (var job in this.JobColumn.JobItems)
         {
             job.Place = i++;
-            await this.service.UpdateJobItem(job);
+            await this.itemService.UpdateJobItem(job);
         }
     }
 
@@ -60,7 +61,7 @@
             JobColumnId = this.JobColumn.Id,
             Place = this.JobColumn.JobItems.Count()
         };
-        item = await service.AddItem(item);
+        item = await this.itemService.AddItem(item);
 
         this.StateHasChanged();
     }
@@ -92,9 +93,9 @@
     private async Task FinishEditing()
     {
         isEditingTitle = false;
-        if(preEditingValue != this.JobColumn.Name)
+        if (preEditingValue != this.JobColumn.Name)
         {
-            await this.service.UpdateJobColumn(this.JobColumn);
+            await this.columnService.UpdateJobColumn(this.JobColumn);
         }
     }
 }

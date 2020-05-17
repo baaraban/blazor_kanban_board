@@ -1,7 +1,7 @@
 ﻿@page "/board"
 
-@using KanbanBoard.Services
-@inject MainService service
+@using KanbanBoard.Services.Abstraction
+@inject IColumnService service
 @using KanbanBoard.Data.Entities
 
 @attribute [Authorize]

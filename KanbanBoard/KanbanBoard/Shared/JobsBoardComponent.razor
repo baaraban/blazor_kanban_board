@@ -1,5 +1,6 @@
-﻿@using KanbanBoard.Services
-@inject MainService service
+﻿@using KanbanBoard.Services.Abstraction
+@inject IItemService itemService
+@inject IColumnService columnService
 @inject IJSRuntime JsRuntime
 
 @using KanbanBoard.Data.Entities
@@ -38,8 +39,8 @@
         from.Place = to.Place;
         to.Place = swap;
 
-        await this.service.UpdateJobItem(from);
-        await this.service.UpdateJobItem(to);
+        await this.itemService.UpdateJobItem(from);
+        await this.itemService.UpdateJobItem(to);
         this.StateHasChanged();
     }
 
@@ -62,10 +63,10 @@
 
         if(deleteFrom != newStatus)
         {
-            await this.service.UpdateJobColumn(deleteFrom);
+            await this.columnService.UpdateJobColumn(deleteFrom);
         }
 
-        await service.UpdateJobColumn(newStatus);
+        await this.columnService.UpdateJobColumn(newStatus);
         this.StateHasChanged();
 
     }
@@ -84,7 +85,7 @@
             JobItems = new List<JobItem>()
         };
 
-        column = await service.AddColumn(column);
+        column = await this.columnService.AddColumn(column);
         this.Columns.Add(column);
 
         base.StateHasChanged();
@@ -96,8 +97,8 @@
         column.JobItems.Remove(item);
         this.Renumerate(column);
 
-        await service.DeleteJobItem(item);
-        await service.UpdateJobColumn(column);
+        await this.itemService.DeleteJobItem(item);
+        await this.columnService.UpdateJobColumn(column);
 
         this.StateHasChanged();
     }
@@ -114,15 +115,12 @@
 
             foreach (var it in item.JobItems.Select(x => x).ToList())
             {
-                await service.DeleteJobItem(it);
+                await this.itemService.DeleteJobItem(it);
             }
         }
 
-
         Columns.Remove(item);
-
-        await service.DeleteJobColumn(item);
-
+        await this.columnService.DeleteJobColumn(item);
         this.StateHasChanged();
     }
 }

@@ -28,9 +28,9 @@
         Container.DraggedOver = null;
     }
 
-    private void DeleteItem()
+    private async Task DeleteItem()
     {
-        Container.DeleteItem(Item);
+        await Container.DeleteItem(Item);
     }
 
     private async Task EditItem()

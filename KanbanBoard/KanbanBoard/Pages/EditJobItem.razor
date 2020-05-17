@@ -1,8 +1,9 @@
-﻿@using KanbanBoard.Services
-@inject MainService service
+﻿@using KanbanBoard.Services.Abstraction
 @using KanbanBoard.Data.Entities
 @using KanbanBoard.Data.DTO
 @inject IModalService ModalService
+@inject IUserService userService
+@inject IItemService itemService
 
 
 <div class="job-edit">
@@ -10,7 +11,7 @@
         <span>Title:</span><textarea @bind="Item.Title" />
         <hr />
         <span>Description: </span><textarea @bind="Item.Description" />
-        <hr/>
+        <hr />
     </div>
     <div class="user-dropdown">
         <span>Assignee:</span>
@@ -32,12 +33,13 @@
     [ParameterAttribute] public int ItemId { get; set; }
     [ParameterAttribute] public ModalReference thisRef { get; set; }
     List<ViewUser> users;
+
     private const string NULL_PLACEHOLDER = "_NULL_";
 
     protected async override Task OnInitializedAsync()
     {
-        Item = await service.GetJobItem(ItemId);
-        users = await service.GetAllUsers();
+        Item = await this.itemService.GetJobItem(ItemId);
+        users = await this.userService.GetAllUsers();
     }
 
     private async Task UpdateItem()
@@ -46,8 +48,8 @@
         {
             Item.UserId = null;
         }
-        await service.UpdateJobItem(Item);
 
+        await this.itemService.UpdateJobItem(Item);
         thisRef.Close(ModalResult.Ok<JobItem>(Item));
     }
 }
